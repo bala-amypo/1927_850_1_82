@@ -16,5 +16,10 @@ public class SwaggerConfig {
                 .servers(List.of(
                         new Server().url("https://9145.pro604cr.amypo.ai/")
                 ));
+
+                .info(new Info()
+                        .title("Remote Work Productivity Metric Collector")
+                        .version("1.0")
+                        .description("API for collecting and managing remote work productivity metrics"));
         }
 }
