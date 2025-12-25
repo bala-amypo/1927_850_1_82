@@ -2,42 +2,61 @@ package com.example.demo.controller;
 
 import com.example.demo.dto.AuthRequest;
 import com.example.demo.dto.AuthResponse;
+import com.example.demo.dto.RegisterRequest;
 import com.example.demo.model.UserAccount;
+import com.example.demo.security.JwtTokenProvider;
 import com.example.demo.service.UserAccountService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Collections;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthController {
 
-    private final UserAccountService userService;
+    private final UserAccountService userAccountService;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider jwtTokenProvider;
 
-    public AuthController(UserAccountService userService) {
-        this.userService = userService;
+    public AuthController(UserAccountService userAccountService,
+                         AuthenticationManager authenticationManager,
+                         JwtTokenProvider jwtTokenProvider) {
+        this.userAccountService = userAccountService;
+        this.authenticationManager = authenticationManager;
+        this.jwtTokenProvider = jwtTokenProvider;
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<UserAccount> register(@RequestBody RegisterRequest request) {
         UserAccount user = new UserAccount();
-        user.setEmail(request.getUsername()); // Mapping username field to email as per common patterns or customize
         user.setUsername(request.getUsername());
-        user.setPasswordHash(request.getPassword()); // Should be encoded
-        user.setRole(Collections.singleton("EMPLOYEE"));
+        user.setEmail(request.getEmail());
+        user.setPasswordHash(request.getPassword());
+        user.setRole(Set.of("USER"));
         
-        userService.registerUser(user);
-        return ResponseEntity.ok("User registered successfully");
+        UserAccount savedUser = userAccountService.registerUser(user);
+        return ResponseEntity.ok(savedUser);
     }
 
     @PostMapping("/login")
     public ResponseEntity<AuthResponse> login(@RequestBody AuthRequest request) {
-        UserAccount user = userService.findByEmail(request.getUsername());
+        authenticationManager.authenticate(
+            new UsernamePasswordAuthenticationToken(request.getEmail(), request.getPassword())
+        );
+
+        UserAccount user = userAccountService.findByEmail(request.getEmail());
+        String role = user.getRole().iterator().next();
+        String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), role);
+
         AuthResponse response = new AuthResponse();
-        response.setToken("dummy-jwt-token-for-review-1");
+        response.setToken(token);
+        response.setUserId(user.getId());
         response.setEmail(user.getEmail());
-        
+        response.setRole(role);
+
         return ResponseEntity.ok(response);
     }
 }

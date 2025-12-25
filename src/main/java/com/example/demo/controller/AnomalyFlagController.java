@@ -34,4 +34,14 @@ public class AnomalyFlagController {
     public ResponseEntity<List<AnomalyFlagRecord>> getFlagsByEmployee(@PathVariable Long employeeId) {
         return ResponseEntity.ok(flagService.getFlagsByEmployee(employeeId));
     }
+
+    @GetMapping("/metric/{metricId}")
+    public ResponseEntity<List<AnomalyFlagRecord>> getFlagsByMetric(@PathVariable Long metricId) {
+        return ResponseEntity.ok(flagService.getFlagsByMetric(metricId));
+    }
+
+    @PutMapping("/{flagId}/resolve")
+    public ResponseEntity<AnomalyFlagRecord> resolveFlag(@PathVariable Long flagId) {
+        return ResponseEntity.ok(flagService.resolveFlag(flagId));
+    }
 }

@@ -41,4 +41,22 @@ public class ProductivityMetricController {
     public ResponseEntity<ProductivityMetricRecord> getMetricById(@PathVariable Long id) {
         return ResponseEntity.ok(metricService.getMetricById(id));
     }
+
+    @GetMapping
+    public ResponseEntity<List<ProductivityMetricRecord>> getAllMetrics() {
+        return ResponseEntity.ok(metricService.getAllMetrics());
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ProductivityMetricRecord> updateMetric(@PathVariable Long id, @RequestBody ProductivityMetricDto dto) {
+        ProductivityMetricRecord entity = new ProductivityMetricRecord();
+        entity.setEmployeeId(dto.getEmployeeId());
+        entity.setDate(dto.getDate());
+        entity.setHoursLogged(dto.getHoursLogged());
+        entity.setTasksCompleted(dto.getTasksCompleted());
+        entity.setMeetingsAttended(dto.getMeetingsAttended());
+        entity.setRawDataJson(dto.getRawDataJson());
+        
+        return ResponseEntity.ok(metricService.updateMetric(id, entity));
+    }
 }
