@@ -15,5 +15,16 @@ public class SwaggerConfig {
                 .servers(List.of(
                         new Server().url("https://9228.408procr.amypo.ai/")
                 ));
+                .info(new Info()
+                        .title("Remote Work Productivity Metric Collector")
+                        .version("1.0")
+                        .description("API for collecting and managing remote work productivity metrics"))
+                .addSecurityItem(new SecurityRequirement().addList("Bearer Authentication"))
+                .components(new io.swagger.v3.oas.models.Components()
+                        .addSecuritySchemes("Bearer Authentication",
+                                new SecurityScheme()
+                                        .type(SecurityScheme.Type.HTTP)
+                                        .scheme("bearer")
+                                        .bearerFormat("JWT")));
         }
 }
