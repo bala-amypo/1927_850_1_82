@@ -5,6 +5,7 @@ import com.example.demo.model.ProductivityMetricRecord;
 import com.example.demo.repository.EmployeeProfileRepository;
 import com.example.demo.repository.ProductivityMetricRecordRepository;
 import com.example.demo.service.ProductivityMetricService;
+import com.example.demo.util.ProductivityCalculator;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,11 +18,14 @@ public class ProductivityMetricServiceImpl implements ProductivityMetricService 
 
     private final ProductivityMetricRecordRepository metricRepository;
     private final EmployeeProfileRepository employeeRepository;
+    private final ProductivityCalculator calculator;
 
     public ProductivityMetricServiceImpl(ProductivityMetricRecordRepository metricRepository,
-                                         EmployeeProfileRepository employeeRepository) {
+                                         EmployeeProfileRepository employeeRepository,
+                                         ProductivityCalculator calculator) {
         this.metricRepository = metricRepository;
         this.employeeRepository = employeeRepository;
+        this.calculator = calculator;
     }
 
     @Override
@@ -30,11 +34,12 @@ public class ProductivityMetricServiceImpl implements ProductivityMetricService 
             throw new ResourceNotFoundException("Employee not found");
         }
         
-        double rawScore = (metric.getHoursLogged() * 10) + 
-                          (metric.getTasksCompleted() * 5) + 
-                          (metric.getMeetingsAttended() * 2);
-        double finalScore = Math.max(0, Math.min(100, rawScore));
-        metric.setProductivityScore(finalScore);
+        double score = calculator.calculateProductivityScore(
+            metric.getHoursLogged(), 
+            metric.getTasksCompleted(), 
+            metric.getMeetingsAttended()
+        );
+        metric.setProductivityScore(score);
 
         try {
             return metricRepository.save(metric);
@@ -55,5 +60,29 @@ public class ProductivityMetricServiceImpl implements ProductivityMetricService 
     public ProductivityMetricRecord getMetricById(Long id) {
         return metricRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Metric not found"));
+    }
+
+    @Override
+    public List<ProductivityMetricRecord> getAllMetrics() {
+        return metricRepository.findAll();
+    }
+
+    @Override
+    public ProductivityMetricRecord updateMetric(Long id, ProductivityMetricRecord updated) {
+        ProductivityMetricRecord existing = getMetricById(id);
+        
+        existing.setHoursLogged(updated.getHoursLogged());
+        existing.setTasksCompleted(updated.getTasksCompleted());
+        existing.setMeetingsAttended(updated.getMeetingsAttended());
+        existing.setRawDataJson(updated.getRawDataJson());
+        
+        double score = calculator.calculateProductivityScore(
+            existing.getHoursLogged(), 
+            existing.getTasksCompleted(), 
+            existing.getMeetingsAttended()
+        );
+        existing.setProductivityScore(score);
+        
+        return metricRepository.save(existing);
     }
 }

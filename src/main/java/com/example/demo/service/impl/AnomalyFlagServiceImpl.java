@@ -34,4 +34,17 @@ public class AnomalyFlagServiceImpl implements AnomalyFlagService {
         }
         return flagRepository.findByEmployeeId(employeeId);
     }
+
+    @Override
+    public List<AnomalyFlagRecord> getFlagsByMetric(Long metricId) {
+        return flagRepository.findByMetricId(metricId);
+    }
+
+    @Override
+    public AnomalyFlagRecord resolveFlag(Long flagId) {
+        AnomalyFlagRecord flag = flagRepository.findById(flagId)
+                .orElseThrow(() -> new ResourceNotFoundException("Flag not found"));
+        flag.setResolved(true);
+        return flagRepository.save(flag);
+    }
 }

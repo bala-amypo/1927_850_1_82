@@ -16,6 +16,7 @@ public class EmployeeProfileServiceImpl implements EmployeeProfileService {
 
     private final EmployeeProfileRepository employeeProfileRepository;
 
+    // Constructor Injection [cite: 553]
     public EmployeeProfileServiceImpl(EmployeeProfileRepository employeeProfileRepository) {
         this.employeeProfileRepository = employeeProfileRepository;
     }
