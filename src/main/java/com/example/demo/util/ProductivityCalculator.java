@@ -27,4 +27,25 @@ public class ProductivityCalculator {
         double threshold = averageScore * 0.3; // 30% deviation threshold
         return Math.abs(score - averageScore) > threshold;
     }
+    
+    public static double computeScore(double hoursLogged, int tasksCompleted, int meetingsAttended) {
+        // Handle invalid inputs by returning 0
+        if (Double.isNaN(hoursLogged) || hoursLogged < 0) {
+            return 0.0;
+        }
+        if (tasksCompleted < 0 || meetingsAttended < 0) {
+            return 0.0;
+        }
+        
+        // Special case: too many meetings should reduce score
+        if (meetingsAttended > 10) {
+            return Math.max(MIN_SCORE, 50.0 - (meetingsAttended - 10) * 2.0);
+        }
+        
+        double rawScore = (hoursLogged * HOURS_WEIGHT) + 
+                         (tasksCompleted * TASKS_WEIGHT) + 
+                         (meetingsAttended * MEETINGS_WEIGHT);
+        
+        return Math.max(MIN_SCORE, Math.min(MAX_SCORE, rawScore));
+    }
 }

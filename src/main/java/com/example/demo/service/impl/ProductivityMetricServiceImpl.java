@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Transactional
@@ -57,9 +58,8 @@ public class ProductivityMetricServiceImpl implements ProductivityMetricService 
     }
 
     @Override
-    public ProductivityMetricRecord getMetricById(Long id) {
-        return metricRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Metric not found"));
+    public Optional<ProductivityMetricRecord> getMetricById(Long id) {
+        return metricRepository.findById(id);
     }
 
     @Override
@@ -69,7 +69,11 @@ public class ProductivityMetricServiceImpl implements ProductivityMetricService 
 
     @Override
     public ProductivityMetricRecord updateMetric(Long id, ProductivityMetricRecord updated) {
-        ProductivityMetricRecord existing = getMetricById(id);
+        Optional<ProductivityMetricRecord> existingOpt = getMetricById(id);
+        if (existingOpt.isEmpty()) {
+            throw new ResourceNotFoundException("Metric not found");
+        }
+        ProductivityMetricRecord existing = existingOpt.get();
         
         existing.setHoursLogged(updated.getHoursLogged());
         existing.setTasksCompleted(updated.getTasksCompleted());
