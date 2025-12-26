@@ -18,7 +18,7 @@ public class UserAccount {
     private String passwordHash;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> role;
+    private Set<String> roles;
 
     private LocalDateTime createdAt;
 
@@ -62,12 +62,12 @@ public class UserAccount {
         this.passwordHash = passwordHash;
     }
 
-    public Set<String> getRole() {
-        return role;
+    public Set<String> getRoles() {
+        return roles;
     }
 
-    public void setRole(Set<String> role) {
-        this.role = role;
+    public void setRoles(Set<String> roles) {
+        this.roles = roles;
     }
 
     public LocalDateTime getCreatedAt() {
