@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/api/metrics")
@@ -39,7 +40,8 @@ public class ProductivityMetricController {
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductivityMetricRecord> getMetricById(@PathVariable Long id) {
-        return ResponseEntity.ok(metricService.getMetricById(id));
+        Optional<ProductivityMetricRecord> metric = metricService.getMetricById(id);
+        return metric.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping
