@@ -35,7 +35,7 @@ public class AuthController {
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPasswordHash(request.getPassword());
-        user.setRole(Set.of("USER"));
+        user.setRoles(Set.of("USER"));
         
         UserAccount savedUser = userAccountService.registerUser(user);
         return ResponseEntity.ok(savedUser);
@@ -48,7 +48,7 @@ public class AuthController {
         );
 
         UserAccount user = userAccountService.findByEmail(request.getEmail());
-        String role = user.getRole().iterator().next();
+        String role = user.getRoles().iterator().next();
         String token = jwtTokenProvider.generateToken(user.getId(), user.getEmail(), role);
 
         AuthResponse response = new AuthResponse();

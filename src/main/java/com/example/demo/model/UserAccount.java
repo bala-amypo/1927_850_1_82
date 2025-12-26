@@ -18,7 +18,7 @@ public class UserAccount {
     private String passwordHash;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    private Set<String> roles = new HashSet<>();
+    private Set<String> roles;
 
     private LocalDateTime createdAt;
 
@@ -28,6 +28,7 @@ public class UserAccount {
     }
 
     public UserAccount() {
+        
     }
 
     public Long getId() {
